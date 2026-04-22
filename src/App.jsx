@@ -161,7 +161,8 @@ function Fld({label,value,onChange,type="text",placeholder=""}){
   return <div style={{marginBottom:12}}>
     {label&&<label className="label">{label}</label>}
     <input className="input" type={type} value={value||""} onChange={onChange} placeholder={placeholder}/>
-      </button>;})}
+</div>;
+}
     </nav>}
   </div>;
 }
