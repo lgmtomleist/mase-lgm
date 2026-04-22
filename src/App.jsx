@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = "https://izvpdznzgmjmdmqrjcdn.supabase.co";
-const SUPABASE_KEY = "sb_publishable_Q7EtEviZq7NeaIPAeAYLaA_qe2Ppfc5";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6dnBkem56Z21qbWRtcXJqY2RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NDc2NjEsImV4cCI6MjA5MjQyMzY2MX0.kkelBBRODsiXhfGyIDCJLp4LL5WUp6VI4PP03RdXsBI";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function sGet(k, def) {
@@ -52,12 +52,19 @@ button,input,select,textarea{font-family:'Outfit',sans-serif;}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9;}
 .menu-toggle{display:none;position:fixed;top:12px;left:12px;z-index:30;background:#14532d;border:none;border-radius:10px;width:42px;height:42px;cursor:pointer;align-items:center;justify-content:center;font-size:20px;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
 @media(max-width:768px){
-  .menu-toggle{display:flex;}
-  .sidebar{position:fixed!important;top:0;left:0;height:100vh;z-index:20;transform:translateX(-100%);}
-  .sidebar.open{transform:translateX(0)!important;}
-  .sidebar-overlay.open{display:block;}
-  .main-content{margin-left:0!important;padding:20px 16px 80px!important;padding-top:64px!important;}
+  .menu-toggle{display:none!important;}
+  .sidebar{display:none!important;}
+  .sidebar-overlay{display:none!important;}
+  .main-content{margin-left:0!important;padding:16px 14px 90px!important;padding-top:16px!important;}
+  .bottom-nav{display:flex!important;}
 }
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid #e5e7eb;z-index:30;padding:6px 0 env(safe-area-inset-bottom,6px);}
+.bottom-nav-btn{flex:1;border:none;background:none;cursor:pointer;padding:6px 4px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.bottom-nav-btn span.nav-icon{font-size:22px;line-height:1;}
+.bottom-nav-btn span.nav-label{font-size:9px;font-weight:700;color:#9ca3af;}
+.bottom-nav-btn.active span.nav-label{color:#14532d;}
+.bottom-nav-btn.active span.nav-icon{filter:drop-shadow(0 0 2px rgba(20,83,45,0.3));}
+.bottom-nav-dot{width:4px;height:4px;border-radius:50%;background:#14532d;margin:0 auto;}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .split3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
 `;
@@ -196,6 +203,14 @@ function Modal({title,onClose,children,wide=false}){
       </div>
       {children}
     </div>
+    {/* BOTTOM NAV - mobile only */}
+    <nav className="bottom-nav">
+      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
+        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
+        <span className="nav-label">{n.l.split(" ")[0]}</span>
+        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
+      </button>)}
+    </nav>
   </div>;
 }
 function FileBtn({onFile,children}){
@@ -262,7 +277,7 @@ function Login({onAdmin,onSalarie}){
         </button>
       </div>:<div style={{background:"rgba(255,255,255,0.1)",borderRadius:20,padding:28,backdropFilter:"blur(8px)"}}>
         <div style={{color:"#fff",fontWeight:800,fontSize:17,marginBottom:6}}>Connexion Administrateur</div>
-        <div style={{color:"#86efac",fontSize:11,marginBottom:18}}>Indice : Admin + annee en cours</div>
+        
         <input type="password" value={pass} onChange={e=>{setPass(e.target.value);setErr("");}} onKeyDown={e=>e.key==="Enter"&&tryAdmin()} placeholder="Mot de passe" style={{width:"100%",padding:"12px 16px",borderRadius:12,border:err?"1.5px solid #f87171":"1.5px solid rgba(255,255,255,0.2)",background:"rgba(255,255,255,0.1)",color:"#fff",fontSize:14,outline:"none",boxSizing:"border-box",marginBottom:8}}/>
         {err&&<div style={{color:"#fca5a5",fontSize:12,marginBottom:8}}>{err}</div>}
         <div style={{display:"flex",gap:10,marginTop:4}}>
@@ -271,6 +286,14 @@ function Login({onAdmin,onSalarie}){
         </div>
       </div>}
     </div>
+    {/* BOTTOM NAV - mobile only */}
+    <nav className="bottom-nav">
+      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
+        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
+        <span className="nav-label">{n.l.split(" ")[0]}</span>
+        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
+      </button>)}
+    </nav>
   </div>;
 }
 
@@ -327,6 +350,14 @@ function Dashboard({employees,formations,formDates,medVisits,epiData,hablData,se
         })}
       </div>
     </div>
+    {/* BOTTOM NAV - mobile only */}
+    <nav className="bottom-nav">
+      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
+        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
+        <span className="nav-label">{n.l.split(" ")[0]}</span>
+        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
+      </button>)}
+    </nav>
   </div>;
 }
 
@@ -357,6 +388,14 @@ function InfoPerso({emp,isAdmin,onSave}){
         <div style={{fontSize:13,color:"#374151",fontWeight:500}}>{v||"--"}</div>
       </div>)}
     </div>
+    {/* BOTTOM NAV - mobile only */}
+    <nav className="bottom-nav">
+      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
+        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
+        <span className="nav-label">{n.l.split(" ")[0]}</span>
+        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
+      </button>)}
+    </nav>
   </div>;
 }
 
@@ -760,6 +799,14 @@ function ModesPage({modes,setModes,isAdmin}){
         </div>
       </div>)}
     </div>
+    {/* BOTTOM NAV - mobile only */}
+    <nav className="bottom-nav">
+      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
+        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
+        <span className="nav-label">{n.l.split(" ")[0]}</span>
+        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
+      </button>)}
+    </nav>
   </div>;
 }
 
@@ -863,6 +910,14 @@ function DocumentsPage({docs,setDocs,isAdmin,docCats,setDocCats}){
         </div>
       </div>)}
     </div>
+    {/* BOTTOM NAV - mobile only */}
+    <nav className="bottom-nav">
+      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
+        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
+        <span className="nav-label">{n.l.split(" ")[0]}</span>
+        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
+      </button>)}
+    </nav>
   </div>;
 }
 
@@ -918,6 +973,14 @@ function EmpsPage({employees,setEmployees,formations,formDates,medVisits,epiData
         </div>
       </div>;})}
     </div>
+    {/* BOTTOM NAV - mobile only */}
+    <nav className="bottom-nav">
+      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
+        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
+        <span className="nav-label">{n.l.split(" ")[0]}</span>
+        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
+      </button>)}
+    </nav>
   </div>;
 }
 
@@ -1029,5 +1092,13 @@ export default function App(){
       page==="modes"?<ModesPage modes={modes} setModes={setModes} isAdmin={isAdmin}/>:
       page==="documents"?<DocumentsPage docs={hseDocs} setDocs={setHseDocs} isAdmin={isAdmin} docCats={docCats} setDocCats={setDocCats}/>:null}
     </div>
+    {/* BOTTOM NAV - mobile only */}
+    <nav className="bottom-nav">
+      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
+        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
+        <span className="nav-label">{n.l.split(" ")[0]}</span>
+        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
+      </button>)}
+    </nav>
   </div>;
 }
