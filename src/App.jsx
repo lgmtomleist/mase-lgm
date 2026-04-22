@@ -33,6 +33,16 @@ button,input,select,textarea{font-family:'Outfit',sans-serif;}
 .chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;}
 .tag-filter{padding:5px 13px;border-radius:20px;border:1.5px solid #e5e7eb;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#374151;transition:all .15s;}
 .tag-filter.active{background:#14532d;color:#fff;border-color:#14532d;}
+.sidebar{transition:transform .25s ease;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9;}
+.menu-toggle{display:none;position:fixed;top:12px;left:12px;z-index:30;background:#14532d;border:none;border-radius:10px;width:42px;height:42px;cursor:pointer;align-items:center;justify-content:center;font-size:20px;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+@media(max-width:768px){
+  .menu-toggle{display:flex;}
+  .sidebar{position:fixed!important;top:0;left:0;height:100vh;z-index:20;transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0)!important;}
+  .sidebar-overlay.open{display:block;}
+  .main-content{margin-left:0!important;padding:20px 16px 80px!important;padding-top:64px!important;}
+}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .split3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
 `;
@@ -1089,34 +1099,46 @@ export default function App(){
 
   const selEmpObj=employees.find(e=>e.id===selEmp);
 
+  const [sidebarOpen,setSidebarOpen]=useState(false);
+  const closeSidebar=()=>setSidebarOpen(false);
+
   return <div style={{display:"flex",minHeight:"100vh",background:"#f0f2ee"}}>
     <style>{G}</style>
+    {/* BURGER BUTTON - mobile only */}
+    <button className="menu-toggle" onClick={()=>setSidebarOpen(o=>!o)}>
+      {sidebarOpen?"✕":"☰"}
+    </button>
+    {/* OVERLAY - mobile only */}
+    <div className={"sidebar-overlay"+(sidebarOpen?" open":"")} onClick={closeSidebar}/>
     {/* SIDEBAR */}
-    <div style={{width:220,background:"#fff",borderRight:"1.5px solid #e5e7eb",display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,height:"100vh",zIndex:10}}>
+    <div className={"sidebar"+(sidebarOpen?" open":"")} style={{width:220,background:"#fff",borderRight:"1.5px solid #e5e7eb",display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,height:"100vh",zIndex:20}}>
       <div style={{padding:"20px 16px 16px"}}>
-        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
-          <span style={{fontSize:26}}>🌿</span>
-          <div>
-            <div style={{fontSize:12,fontWeight:800,color:"#14532d",letterSpacing:.5}}>MASE</div>
-            <div style={{fontSize:10,color:"#9ca3af",fontWeight:600}}>Espaces Verts</div>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:26}}>🌿</span>
+            <div>
+              <div style={{fontSize:12,fontWeight:800,color:"#14532d",letterSpacing:.5}}>MASE</div>
+              <div style={{fontSize:10,color:"#9ca3af",fontWeight:600}}>Espaces Verts</div>
+            </div>
           </div>
+          <button onClick={closeSidebar} style={{background:"#f0f2ee",border:"none",borderRadius:8,width:28,height:28,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>✕</button>
         </div>
         <div style={{marginTop:8,fontSize:11,fontWeight:700,color:isAdmin?"#14532d":"#6b7280",background:isAdmin?"#dcfce7":"#f0f2ee",borderRadius:8,padding:"4px 10px",display:"inline-block"}}>{isAdmin?"🛡️ Admin":"👷 Salarié"}</div>
       </div>
       <nav style={{flex:1,padding:"8px 10px",overflowY:"auto"}}>
-        {NAV.map(n=><button key={n.k} className={"sidebar-link"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
+        {NAV.map(n=><button key={n.k} className={"sidebar-link"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);closeSidebar();}}>
           <span style={{fontSize:18}}>{n.i}</span>{n.l}
         </button>)}
       </nav>
       <div style={{padding:"12px 16px",borderTop:"1px solid #e5e7eb"}}>
         <div style={{fontSize:11,color:"#9ca3af",marginBottom:8}}>Connecté en tant que</div>
         <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:8}}>{isAdmin?"Administrateur":"Espace Salarié"}</div>
-        <button className="btn-secondary" style={{width:"100%",fontSize:12,justifyContent:"center"}} onClick={()=>{setRole(null);setPage("dashboard");setSelEmp(null);}}>Déconnexion</button>
+        <button className="btn-secondary" style={{width:"100%",fontSize:12,justifyContent:"center"}} onClick={()=>{setRole(null);setPage("dashboard");setSelEmp(null);closeSidebar();}}>Déconnexion</button>
       </div>
     </div>
 
     {/* MAIN */}
-    <div style={{marginLeft:220,flex:1,padding:"28px 32px",maxWidth:1200,boxSizing:"border-box"}}>
+    <div className="main-content" style={{marginLeft:220,flex:1,padding:"28px 32px",maxWidth:1200,boxSizing:"border-box"}}>
       {/* Show employee detail */}
       {selEmp&&selEmpObj?<EmpDetail
         emp={selEmpObj} formations={formations} formDates={formDates}
