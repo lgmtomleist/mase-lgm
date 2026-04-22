@@ -1,4 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+/* ═══════════════════════════════════════════════════════════════
+   SUPABASE CONFIG — remplace par tes propres clés
+═══════════════════════════════════════════════════════════════ */
+const SUPABASE_URL  = "https://izvpdznzgmjmdmqrjcdn.supabase.co/rest/v1/";        // ex: https://xxxxx.supabase.co
+const SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6dnBkem56Z21qbWRtcXJqY2RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NDc2NjEsImV4cCI6MjA5MjQyMzY2MX0.kkelBBRODsiXhfGyIDCJLp4LL5WUp6VI4PP03RdXsBI";   // ex: eyJhbGc...
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ═══════════════════════════════════════════════════════════════
    GLOBAL CSS
@@ -142,8 +150,24 @@ const HABL_TYPES=["Habilitation électrique B0","Habilitation électrique H0","C
 /* ═══════════════════════════════════════════════════════════════
    STORAGE
 ═══════════════════════════════════════════════════════════════ */
-async function sGet(k,def){try{const r=await window.storage.get(k);return r?JSON.parse(r.value):def;}catch{return def;}}
-async function sSave(k,v){try{await window.storage.set(k,JSON.stringify(v));}catch(e){console.error(e);}}
+async function sGet(k, def) {
+  try {
+    const { data, error } = await supabase
+      .from("app_data")
+      .select("value")
+      .eq("key", k)
+      .single();
+    if (error || !data) return def;
+    return JSON.parse(data.value);
+  } catch { return def; }
+}
+async function sSave(k, v) {
+  try {
+    await supabase
+      .from("app_data")
+      .upsert({ key: k, value: JSON.stringify(v), updated_at: new Date().toISOString() });
+  } catch(e) { console.error(e); }
+}
 
 /* ═══════════════════════════════════════════════════════════════
    HELPERS
