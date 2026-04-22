@@ -51,20 +51,8 @@ button,input,select,textarea{font-family:'Outfit',sans-serif;}
 .sidebar{transition:transform .25s ease;}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9;}
 .menu-toggle{display:none;position:fixed;top:12px;left:12px;z-index:30;background:#14532d;border:none;border-radius:10px;width:42px;height:42px;cursor:pointer;align-items:center;justify-content:center;font-size:20px;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
-@media(max-width:768px){
-  .menu-toggle{display:none!important;}
-  .sidebar{display:none!important;}
-  .sidebar-overlay{display:none!important;}
-  .main-content{margin-left:0!important;padding:16px 14px 90px!important;padding-top:16px!important;}
-  .bottom-nav{display:flex!important;}
-}
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid #e5e7eb;z-index:30;padding:6px 0 env(safe-area-inset-bottom,6px);}
-.bottom-nav-btn{flex:1;border:none;background:none;cursor:pointer;padding:6px 4px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;}
-.bottom-nav-btn span.nav-icon{font-size:22px;line-height:1;}
-.bottom-nav-btn span.nav-label{font-size:9px;font-weight:700;color:#9ca3af;}
-.bottom-nav-btn.active span.nav-label{color:#14532d;}
-.bottom-nav-btn.active span.nav-icon{filter:drop-shadow(0 0 2px rgba(20,83,45,0.3));}
-.bottom-nav-dot{width:4px;height:4px;border-radius:50%;background:#14532d;margin:0 auto;}
+.main-desktop{margin-left:220px;flex:1;padding:28px 32px;max-width:1200px;box-sizing:border-box;}
+.main-mobile{margin-left:0;flex:1;padding:16px 14px 90px;max-width:100%;box-sizing:border-box;}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .split3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
 `;
@@ -173,6 +161,8 @@ function Fld({label,value,onChange,type="text",placeholder=""}){
   return <div style={{marginBottom:12}}>
     {label&&<label className="label">{label}</label>}
     <input className="input" type={type} value={value||""} onChange={onChange} placeholder={placeholder}/>
+      </button>;})}
+    </nav>}
   </div>;
 }
 function FldSel({label,value,onChange,options}){
@@ -181,17 +171,23 @@ function FldSel({label,value,onChange,options}){
     <select className="input" value={value||""} onChange={onChange}>
       {options.map(o=><option key={o.value||o} value={o.value||o}>{o.label||o}</option>)}
     </select>
+      </button>;})}
+    </nav>}
   </div>;
 }
 function FldArea({label,value,onChange,placeholder="",rows=3}){
   return <div style={{marginBottom:12}}>
     {label&&<label className="label">{label}</label>}
     <textarea className="input" value={value||""} onChange={onChange} placeholder={placeholder} rows={rows} style={{resize:"vertical"}}/>
+      </button>;})}
+    </nav>}
   </div>;
 }
 function Avatar({emp,size=44}){
   return <div style={{width:size,height:size,borderRadius:size/4,flexShrink:0,overflow:"hidden",background:"linear-gradient(135deg,#14532d,#16a34a)",display:"flex",alignItems:"center",justifyContent:"center"}}>
     {emp.photo?<img src={emp.photo} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>:<span style={{color:"#fff",fontWeight:800,fontSize:size*.3}}>{ini(emp.nom)}</span>}
+      </button>;})}
+    </nav>}
   </div>;
 }
 function Modal({title,onClose,children,wide=false}){
@@ -203,14 +199,8 @@ function Modal({title,onClose,children,wide=false}){
       </div>
       {children}
     </div>
-    {/* BOTTOM NAV - mobile only */}
-    <nav className="bottom-nav">
-      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
-        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
-        <span className="nav-label">{n.l.split(" ")[0]}</span>
-        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
-      </button>)}
-    </nav>
+      </button>;})}
+    </nav>}
   </div>;
 }
 function FileBtn({onFile,children}){
@@ -245,11 +235,15 @@ function SectionHdr({icon,title,action}){
       <h2 style={{fontSize:20,fontWeight:800,color:"#1a2216",fontFamily:"'Fraunces',Georgia,serif"}}>{title}</h2>
     </div>
     {action&&<div>{action}</div>}
+      </button>;})}
+    </nav>}
   </div>;
 }
 function Tabs({tabs,active,onChange}){
   return <div style={{display:"flex",gap:6,marginBottom:20,borderBottom:"2px solid #e5e7eb",paddingBottom:0}}>
     {tabs.map(([k,l])=><button key={k} onClick={()=>onChange(k)} style={{padding:"8px 16px",border:"none",background:"none",cursor:"pointer",fontWeight:700,fontSize:13,color:active===k?"#14532d":"#6b7280",borderBottom:active===k?"2px solid #14532d":"2px solid transparent",marginBottom:-2,borderRadius:"4px 4px 0 0"}}>{l}</button>)}
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -286,14 +280,8 @@ function Login({onAdmin,onSalarie}){
         </div>
       </div>}
     </div>
-    {/* BOTTOM NAV - mobile only */}
-    <nav className="bottom-nav">
-      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
-        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
-        <span className="nav-label">{n.l.split(" ")[0]}</span>
-        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
-      </button>)}
-    </nav>
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -350,14 +338,8 @@ function Dashboard({employees,formations,formDates,medVisits,epiData,hablData,se
         })}
       </div>
     </div>
-    {/* BOTTOM NAV - mobile only */}
-    <nav className="bottom-nav">
-      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
-        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
-        <span className="nav-label">{n.l.split(" ")[0]}</span>
-        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
-      </button>)}
-    </nav>
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -388,14 +370,8 @@ function InfoPerso({emp,isAdmin,onSave}){
         <div style={{fontSize:13,color:"#374151",fontWeight:500}}>{v||"--"}</div>
       </div>)}
     </div>
-    {/* BOTTOM NAV - mobile only */}
-    <nav className="bottom-nav">
-      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
-        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
-        <span className="nav-label">{n.l.split(" ")[0]}</span>
-        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
-      </button>)}
-    </nav>
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -423,6 +399,8 @@ function EmpFormations({emp,formations,formDates,onSave,isAdmin,onView}){
         </tr>;
       })}</tbody>
     </table>
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -485,6 +463,8 @@ function EmpEpi({emp,epi,onSave,isAdmin}){
       </tr>;})}
       </tbody>
     </table>}
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -530,6 +510,8 @@ function EmpHabl({emp,habl,onSave,isAdmin,onView}){
       </tr>;})}
       </tbody>
     </table>}
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -578,6 +560,8 @@ function EmpMedical({emp,med,onSave,isAdmin,onView}){
       </tr>;})}
       </tbody>
     </table>}
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -615,6 +599,8 @@ function EmpDocs({emp,docs,onSave,isAdmin,onView,docCats}){
         </div>
       </div>)}
     </div>}
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -651,6 +637,8 @@ function EmpDetail({emp,formations,formDates,medVisits,empDocs,epiData,hablData,
     {tab==="habl"&&<EmpHabl emp={emp} habl={myHabl} onSave={d=>onSaveHabl(emp.id,d)} isAdmin={isAdmin} onView={setViewDoc}/>}
     {tab==="medical"&&<EmpMedical emp={emp} med={myMed} onSave={d=>onSaveMed(emp.id,d)} isAdmin={isAdmin} onView={setViewDoc}/>}
     {tab==="docs"&&<EmpDocs emp={emp} docs={myDocs} onSave={d=>onSaveDocs(emp.id,d)} isAdmin={isAdmin} onView={setViewDoc} docCats={docCats}/>}
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -728,6 +716,8 @@ function FormationsPage({formations,setFormations,employees,formDates,setFormDat
       </div>;
     })}
     {editForm&&<AffectFormModal formation={editForm} employees={employees} formDates={formDates} onSaveDate={dates=>setFormDates(d=>({...d,...dates}))} onClose={()=>setEditForm(null)}/>}
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -799,14 +789,8 @@ function ModesPage({modes,setModes,isAdmin}){
         </div>
       </div>)}
     </div>
-    {/* BOTTOM NAV - mobile only */}
-    <nav className="bottom-nav">
-      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
-        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
-        <span className="nav-label">{n.l.split(" ")[0]}</span>
-        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
-      </button>)}
-    </nav>
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -860,6 +844,8 @@ function ModeDetail({mode,modes,setModes,isAdmin,onBack}){
       </div>
     </div>
     {editing&&<div style={{marginTop:10}}><button className="btn-ghost" style={{fontSize:12}} onClick={addLigne}>+ Ajouter une ligne</button></div>}
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -910,14 +896,8 @@ function DocumentsPage({docs,setDocs,isAdmin,docCats,setDocCats}){
         </div>
       </div>)}
     </div>
-    {/* BOTTOM NAV - mobile only */}
-    <nav className="bottom-nav">
-      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
-        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
-        <span className="nav-label">{n.l.split(" ")[0]}</span>
-        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
-      </button>)}
-    </nav>
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -973,14 +953,8 @@ function EmpsPage({employees,setEmployees,formations,formDates,medVisits,epiData
         </div>
       </div>;})}
     </div>
-    {/* BOTTOM NAV - mobile only */}
-    <nav className="bottom-nav">
-      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
-        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
-        <span className="nav-label">{n.l.split(" ")[0]}</span>
-        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
-      </button>)}
-    </nav>
+      </button>;})}
+    </nav>}
   </div>;
 }
 
@@ -1003,6 +977,8 @@ export default function App(){
   const [docCats,setDocCatsR]=useState(INIT_DOC_CATS);
 
   const closeSidebar=()=>setSidebarOpen(false);
+  const [isMobile,setIsMobile]=useState(window.innerWidth<=768);
+  useEffect(()=>{const h=()=>setIsMobile(window.innerWidth<=768);window.addEventListener('resize',h);return()=>window.removeEventListener('resize',h);},[]);
 
   const setEmployees=async v=>{setEmployeesR(v);await sSave("ev2-emps",v);};
   const setFormations=async v=>{setFormationsR(v);await sSave("ev2-forms",v);};
@@ -1053,7 +1029,7 @@ export default function App(){
       {sidebarOpen?"X":"="}
     </button>
     <div className={"sidebar-overlay"+(sidebarOpen?" open":"")} onClick={closeSidebar}/>
-    <div className={"sidebar"+(sidebarOpen?" open":"")} style={{width:220,background:"#fff",borderRight:"1.5px solid #e5e7eb",display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,height:"100vh",zIndex:20}}>
+    <div style={{width:220,background:"#fff",borderRight:"1.5px solid #e5e7eb",display:isMobile?(sidebarOpen?"flex":"none"):"flex",flexDirection:"column",position:"fixed",top:0,left:0,height:"100vh",zIndex:20}}>
       <div style={{padding:"20px 16px 16px"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -1078,7 +1054,7 @@ export default function App(){
         <button className="btn-secondary" style={{width:"100%",fontSize:12,justifyContent:"center"}} onClick={()=>{setRole(null);setPage("dashboard");setSelEmp(null);closeSidebar();}}>Deconnexion</button>
       </div>
     </div>
-    <div className="main-content" style={{marginLeft:220,flex:1,padding:"28px 32px",maxWidth:1200,boxSizing:"border-box"}}>
+    <div style={{marginLeft:isMobile?0:220,flex:1,padding:isMobile?"16px 14px 90px 14px":"28px 32px",maxWidth:isMobile?"100%":1200,boxSizing:"border-box"}}>
       {selEmp&&selEmpObj?<EmpDetail
         emp={selEmpObj} formations={formations} formDates={formDates}
         medVisits={medVisits} empDocs={empDocs} epiData={epiData} hablData={hablData}
@@ -1092,13 +1068,13 @@ export default function App(){
       page==="modes"?<ModesPage modes={modes} setModes={setModes} isAdmin={isAdmin}/>:
       page==="documents"?<DocumentsPage docs={hseDocs} setDocs={setHseDocs} isAdmin={isAdmin} docCats={docCats} setDocCats={setDocCats}/>:null}
     </div>
-    {/* BOTTOM NAV - mobile only */}
-    <nav className="bottom-nav">
-      {NAV.map(n=><button key={n.k} className={"bottom-nav-btn"+(page===n.k&&!selEmp?" active":"")} onClick={()=>{setPage(n.k);setSelEmp(null);}}>
-        <span className="nav-icon" dangerouslySetInnerHTML={{__html:n.i}}/>
-        <span className="nav-label">{n.l.split(" ")[0]}</span>
-        {page===n.k&&!selEmp&&<div className="bottom-nav-dot"/>}
-      </button>)}
-    </nav>
+    {/* BOTTOM NAV mobile */}
+    {isMobile&&<nav style={{position:"fixed",bottom:0,left:0,right:0,background:"#fff",borderTop:"1.5px solid #e5e7eb",zIndex:30,display:"flex",padding:"6px 0"}}>
+      {NAV.map(n=>{const active=page===n.k&&!selEmp;return <button key={n.k} onClick={()=>{setPage(n.k);setSelEmp(null);}} style={{flex:1,border:"none",background:"none",cursor:"pointer",padding:"6px 4px 4px",display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+        <span style={{fontSize:22,lineHeight:1}} dangerouslySetInnerHTML={{__html:n.i}}/>
+        <span style={{fontSize:9,fontWeight:700,color:active?"#14532d":"#9ca3af"}}>{n.l.split(" ")[0]}</span>
+        {active&&<div style={{width:4,height:4,borderRadius:"50%",background:"#14532d"}}/>}
+      </button>;})}
+    </nav>}
   </div>;
 }
