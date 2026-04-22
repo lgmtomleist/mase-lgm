@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 /* ═══════════════════════════════════════════════════════════════
    SUPABASE CONFIG — remplace par tes propres clés
 ═══════════════════════════════════════════════════════════════ */
-const SUPABASE_URL  = "https://izvpdznzgmjmdmqrjcdn.supabase.co/rest/v1/";        // ex: https://xxxxx.supabase.co
+const SUPABASE_URL  = "https://izvpdznzgmjmdmqrjcdn.supabase.co
 const SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6dnBkem56Z21qbWRtcXJqY2RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NDc2NjEsImV4cCI6MjA5MjQyMzY2MX0.kkelBBRODsiXhfGyIDCJLp4LL5WUp6VI4PP03RdXsBI";   // ex: eyJhbGc...
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
