@@ -608,6 +608,56 @@ function Dashboard({employees,formations,formDates,medVisits,epiData,hablData,se
   </div>;
 }
 
+
+function AffectModal({formation,employees,formDates,setFormations,formations,setFormDates,onClose}){
+  const [empIds,setEmpIds]=useState([...(formation.employes||[])]);
+  const toggle=id=>setEmpIds(ids=>ids.includes(id)?ids.filter(x=>x!==id):[...ids,id]);
+  const save=()=>{
+    setFormations(formations.map(f=>f.id===formation.id?{...f,employes:empIds}:f));
+    onClose();
+  };
+  return <Modal title={"Affecter : "+formation.titre} onClose={onClose} wide>
+    <div style={{marginBottom:16}}>
+      <div style={{fontSize:13,color:"#6b7280",marginBottom:12}}>{formation.categorie} - Validite {formation.dureeValidite} mois</div>
+      <label className="label">Salaries concernes</label>
+      <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:16}}>
+        {employees.map(e=>{
+          const checked=empIds.includes(e.id);
+          return <div key={e.id} onClick={()=>toggle(e.id)} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",borderRadius:10,border:"1.5px solid "+(checked?"#14532d":"#e5e7eb"),background:checked?"#f0fdf4":"#fff",cursor:"pointer"}}>
+            <Avatar emp={e} size={30}/>
+            <div>
+              <div style={{fontSize:13,fontWeight:700,color:"#1a2216"}}>{e.nom}</div>
+              <div style={{fontSize:11,color:"#6b7280"}}>{e.poste}</div>
+            </div>
+            {checked&&<span style={{color:"#14532d",fontWeight:800,fontSize:16}}>✓</span>}
+          </div>;
+        })}
+      </div>
+      {empIds.length>0&&<>
+        <label className="label">Dates de realisation</label>
+        <div style={{overflowX:"auto"}}>
+        <table className="table"><thead><tr><th>Salarie</th><th>Statut</th><th>Date realisation</th><th>Attestation</th></tr></thead>
+        <tbody>{empIds.map(eid=>{
+          const emp=employees.find(e=>e.id===eid);
+          if(!emp)return null;
+          const key=formation.id+"-"+eid,fd=formDates[key]||{},s=fStatus(formation.id,eid,formation.dureeValidite,formDates);
+          return <tr key={eid}>
+            <td><div style={{display:"flex",alignItems:"center",gap:8}}><Avatar emp={emp} size={26}/><span style={{fontWeight:600,fontSize:13}}>{emp.nom}</span></div></td>
+            <td><Bdg s={s}/></td>
+            <td><input type="date" value={fd.date||""} onChange={e=>setFormDates(d=>({...d,[key]:{...fd,date:e.target.value}}))} className="input" style={{width:150,fontSize:12,padding:"6px 10px"}}/></td>
+            <td>{fd.document?<button className="btn-ghost" style={{fontSize:11}} onClick={()=>dlFile(fd.document,fd.nomDoc)}>DL {fd.nomDoc}</button>:<span style={{color:"#9ca3af",fontSize:12}}>--</span>}</td>
+          </tr>;
+        })}</tbody></table>
+        </div>
+      </>}
+    </div>
+    <div style={{display:"flex",gap:10}}>
+      <button className="btn-secondary" onClick={onClose}>Annuler</button>
+      <button className="btn-primary" onClick={save}>Enregistrer ({empIds.length} salarie(s))</button>
+    </div>
+  </Modal>;
+}
+
 function FormationsPage({formations,setFormations,employees,formDates,setFormDates,isAdmin}){
   const [filter,setFilter]=useState("Tous");
   const [showNew,setShowNew]=useState(false);
@@ -628,8 +678,8 @@ function FormationsPage({formations,setFormations,employees,formDates,setFormDat
     </div>}
     <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>{cats.map(c=><button key={c} className={"tag-filter"+(filter===c?" active":"")} onClick={()=>setFilter(c)}>{c}</button>)}</div>
     {filtered.map(form=>{
-    const rows=(form.employes||[]).map(eid=>({emp:employees.find(e=>e.id===eid),s:fStatus(form.id,eid,form.dureeValidite,formDates)})).filter(x=>x.emp!=null);
-    const exp=rows.filter(x=>x.s.s==="exp"||x.s.s==="non").length,warn=rows.filter(x=>x.s.s==="soon").length;
+      const rows=form.employes.map(eid=>({emp:employees.find(e=>e.id===eid),s:fStatus(form.id,eid,form.dureeValidite,formDates)})).filter(x=>x.emp);
+      const exp=rows.filter(x=>x.s.s==="exp"||x.s.s==="non").length,warn=rows.filter(x=>x.s.s==="soon").length;
       return <div key={form.id} className="card">
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
           <div>
@@ -649,16 +699,7 @@ function FormationsPage({formations,setFormations,employees,formDates,setFormDat
         {(exp>0||warn>0)&&<div style={{background:exp>0?"#fee2e2":"#fef3c7",borderRadius:8,padding:"5px 10px",fontSize:12,color:exp>0?"#dc2626":"#d97706",fontWeight:700}}>{exp>0?exp+" salarie(s) : action requise":warn+" salarie(s) : renouvellement proche"}</div>}
       </div>;
     })}
-    {editForm&&<Modal title={"Affectation: "+editForm.titre} onClose={()=>setEditForm(null)} wide>
-      <div style={{overflowX:"auto"}}><table className="table"><thead><tr><th>Salarie</th><th>Statut</th><th>Date realisation</th></tr></thead>
-      <tbody>{employees.filter(e=>editForm.employes.includes(e.id)).map(emp=>{
-        const key=editForm.id+"-"+emp.id,fd=formDates[key]||{},s=fStatus(editForm.id,emp.id,editForm.dureeValidite,formDates);
-        return <tr key={emp.id}><td><div style={{display:"flex",alignItems:"center",gap:8}}><Avatar emp={emp} size={28}/><span style={{fontWeight:600}}>{emp.nom}</span></div></td>
-          <td><Bdg s={s}/></td><td><input type="date" value={fd.date||""} onChange={e=>setFormDates(d=>({...d,[key]:{...fd,date:e.target.value}}))} className="input" style={{width:150,fontSize:12,padding:"6px 10px"}}/></td>
-        </tr>;
-      })}</tbody></table></div>
-      <div style={{marginTop:16}}><button className="btn-secondary" onClick={()=>setEditForm(null)}>Fermer</button></div>
-    </Modal>}
+    {editForm&&<AffectModal formation={editForm} employees={employees} formDates={formDates} setFormations={setFormations} formations={formations} setFormDates={setFormDates} onClose={()=>setEditForm(null)}/>}
   </div>;
 }
 
@@ -855,6 +896,70 @@ function EmpsPage({employees,setEmployees,formations,formDates,medVisits,epiData
   </div>;
 }
 
+
+const LIEN_CATS=["Audit terrain","Reglementation","Formation","Phytosanitaire","Securite","Environnement","Autre"];
+
+function LiensPage({isAdmin,liens,setLiens}){
+  const [showForm,setShowForm]=useState(false);
+  const [editIdx,setEditIdx]=useState(null);
+  const empty={titre:"",url:"",description:"",categorie:"Audit terrain",couleur:"#14532d"};
+  const [form,setForm]=useState(empty);
+  const set=k=>e=>setForm(f=>({...f,[k]:e.target.value}));
+  const save=()=>{
+    if(!form.titre.trim()||!form.url.trim())return;
+    const url=form.url.startsWith("http")?form.url:"https://"+form.url;
+    const updated=editIdx!==null?liens.map((l,i)=>i===editIdx?{...form,url}:l):[...liens,{...form,url}];
+    setLiens(updated);setShowForm(false);setEditIdx(null);setForm(empty);
+  };
+  const del=i=>setLiens(liens.filter((_,idx)=>idx!==i));
+  const open=url=>{window.open(url,"_blank","noopener");};
+  const COLORS=["#14532d","#1d4ed8","#dc2626","#d97706","#7c3aed","#0891b2","#374151"];
+  return <div>
+    <SHdr icon="&#128279;" title="Liens et Audits terrain" action={isAdmin&&<button className="btn-primary" onClick={()=>{setForm(empty);setEditIdx(null);setShowForm(true);}}>+ Ajouter un lien</button>}/>
+    {!isAdmin&&liens.length===0&&<div className="card" style={{textAlign:"center",color:"#6b7280",padding:40}}>
+      <div style={{fontSize:40,marginBottom:10}}>&#128279;</div>
+      <div>Aucun lien disponible pour le moment.</div>
+    </div>}
+    {isAdmin&&showForm&&<div className="card" style={{marginBottom:16,border:"1.5px solid #bbf7d0"}}>
+      <div style={{fontWeight:700,marginBottom:14}}>{editIdx!==null?"Modifier le lien":"Nouveau lien"}</div>
+      <div className="split"><Fld label="Titre *" value={form.titre} onChange={set("titre")} placeholder="Ex: Grille audit MASE"/><FSel label="Categorie" value={form.categorie} onChange={set("categorie")} options={LIEN_CATS}/></div>
+      <Fld label="URL *" value={form.url} onChange={set("url")} placeholder="https://example.com"/>
+      <FArea label="Description" value={form.description} onChange={set("description")} rows={2} placeholder="Decrivez ce lien..."/>
+      <div style={{marginBottom:12}}>
+        <label className="label">Couleur du bouton</label>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          {COLORS.map(c=><div key={c} onClick={()=>setForm(f=>({...f,couleur:c}))} style={{width:30,height:30,borderRadius:8,background:c,cursor:"pointer",border:form.couleur===c?"3px solid #1a2216":"3px solid transparent"}}/>)}
+        </div>
+      </div>
+      <div style={{display:"flex",gap:10}}>
+        <button className="btn-secondary" onClick={()=>{setShowForm(false);setEditIdx(null);}}>Annuler</button>
+        <button className="btn-primary" onClick={save}>Enregistrer</button>
+      </div>
+    </div>}
+    {liens.length>0&&<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:14}}>
+      {liens.map((l,i)=><div key={i} className="card" style={{padding:0,overflow:"hidden",border:"1.5px solid #e5e7eb"}}>
+        <div style={{background:l.couleur||"#14532d",padding:"14px 16px",cursor:"pointer"}} onClick={()=>open(l.url)}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{color:"#fff",fontWeight:800,fontSize:15}}>{l.titre}</div>
+            <span style={{color:"rgba(255,255,255,0.8)",fontSize:20}}>&#8599;</span>
+          </div>
+          <div style={{color:"rgba(255,255,255,0.7)",fontSize:11,marginTop:3}}>{l.categorie}</div>
+        </div>
+        <div style={{padding:"12px 16px"}}>
+          {l.description&&<div style={{fontSize:13,color:"#374151",marginBottom:10,lineHeight:1.5}}>{l.description}</div>}
+          <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+            <button className="btn-primary" style={{fontSize:12,padding:"7px 14px"}} onClick={()=>open(l.url)}>Ouvrir le lien</button>
+            {isAdmin&&<>
+              <button className="btn-ghost" style={{fontSize:11}} onClick={()=>{setForm({...l});setEditIdx(i);setShowForm(true);}}>Modifier</button>
+              <button className="btn-danger" style={{fontSize:11}} onClick={()=>del(i)}>Suppr</button>
+            </>}
+          </div>
+        </div>
+      </div>)}
+    </div>}
+  </div>;
+}
+
 export default function App(){
   const [loaded,setLoaded]=useState(false);
   const [role,setRole]=useState(null);
@@ -871,6 +976,7 @@ export default function App(){
   const [hseDocs,setHseDocsR]=useState(INIT_HSE_DOCS);
   const [modes,setModesR]=useState(INIT_MODES);
   const [docCats,setDocCatsR]=useState(INIT_DOC_CATS);
+  const [liens,setLiensR]=useState([]);
 
   useEffect(()=>{
     const check=()=>setIsMobile(window.innerWidth<=768);
@@ -886,6 +992,7 @@ export default function App(){
   const setHseDocs=mk("ev2-hsedocs",setHseDocsR);
   const setModes=mk("ev2-modes",setModesR);
   const setDocCats=mk("ev2-doccats",setDocCatsR);
+  const setLiens=mk("ev2-liens",setLiensR);
   const saveMed=async(eid,v)=>{const u={...medVisits,[eid]:v};setMedVisitsR(u);await sSave("ev2-med",u);};
   const saveEmpDocs=async(eid,v)=>{const u={...empDocs,[eid]:v};setEmpDocsR(u);await sSave("ev2-empdocs",u);};
   const saveEpi=async(eid,v)=>{const u={...epiData,[eid]:v};setEpiDataR(u);await sSave("ev2-epi",u);};
@@ -896,13 +1003,14 @@ export default function App(){
   useEffect(()=>{
     (async()=>{
       try{
-        const[e,f,fd,mv,ed,epi,habl,hd,m,dc]=await Promise.all([
+        const[e,f,fd,mv,ed,epi,habl,hd,m,dc,li]=await Promise.all([
           sGet("ev2-emps",INIT_EMPS),sGet("ev2-forms",INIT_FORMATIONS),sGet("ev2-fdates",INIT_FORM_DATES),
           sGet("ev2-med",{}),sGet("ev2-empdocs",{}),sGet("ev2-epi",{}),sGet("ev2-habl",{}),
           sGet("ev2-hsedocs",INIT_HSE_DOCS),sGet("ev2-modes",INIT_MODES),sGet("ev2-doccats",INIT_DOC_CATS),
+          sGet("ev2-liens",[]),
         ]);
         setEmployeesR(e);setFormationsR(f);setFormDatesR(fd);setMedVisitsR(mv);
-        setEmpDocsR(ed);setEpiDataR(epi);setHablDataR(habl);setHseDocsR(hd);setModesR(m);setDocCatsR(dc);
+        setEmpDocsR(ed);setEpiDataR(epi);setHablDataR(habl);setHseDocsR(hd);setModesR(m);setDocCatsR(dc);setLiensR(li);
       }catch(err){console.error("Erreur chargement:",err);}
       setLoaded(true);
     })();
@@ -915,6 +1023,7 @@ export default function App(){
     {k:"formations",i:"&#127891;",l:"Formations"},
     {k:"modes",i:"&#128295;",l:"Modes Op."},
     {k:"documents",i:"&#128193;",l:"Documents"},
+    {k:"liens",i:"&#128279;",l:"Liens"},
   ];
 
   if(!loaded)return <div style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#052e16"}}><style>{G}</style><div style={{textAlign:"center",color:"#fff"}}><div style={{fontSize:44}}>&#127807;</div><div style={{marginTop:10,fontSize:14,opacity:.7}}>Chargement...</div></div></div>;
@@ -970,6 +1079,7 @@ export default function App(){
         :page==="formations"?<FormationsPage formations={formations} setFormations={setFormations} employees={employees} formDates={formDates} setFormDates={setFormDates} isAdmin={isAdmin}/>
         :page==="modes"?<ModesPage modes={modes} setModes={setModes} isAdmin={isAdmin}/>
         :page==="documents"?<DocumentsPage docs={hseDocs} setDocs={setHseDocs} isAdmin={isAdmin} docCats={docCats} setDocCats={setDocCats}/>
+        :page==="liens"?<LiensPage isAdmin={isAdmin} liens={liens} setLiens={setLiens}/>
         :null}
     </div>
 
