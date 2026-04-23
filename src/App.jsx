@@ -628,7 +628,7 @@ function FormationsPage({formations,setFormations,employees,formDates,setFormDat
     </div>}
     <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>{cats.map(c=><button key={c} className={"tag-filter"+(filter===c?" active":"")} onClick={()=>setFilter(c)}>{c}</button>)}</div>
     {filtered.map(form=>{
-const rows=(form.employes||[]).map(eid=>({emp:employees.find(e=>e.id===eid),s:fStatus(form.id,eid,form.dureeValidite,formDates)})).filter(x=>x.emp!=null);
+    const rows=(form.employes||[]).map(eid=>({emp:employees.find(e=>e.id===eid),s:fStatus(form.id,eid,form.dureeValidite,formDates)})).filter(x=>x.emp!=null);
     const exp=rows.filter(x=>x.s.s==="exp"||x.s.s==="non").length,warn=rows.filter(x=>x.s.s==="soon").length;
       return <div key={form.id} className="card">
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
