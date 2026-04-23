@@ -163,7 +163,7 @@ function Fld({label,value,onChange,type="text",placeholder=""}){
     <input className="input" type={type} value={value||""} onChange={onChange} placeholder={placeholder}/>
 </div>;
 }
-    </nav>}
+
   </div>;
 }
 function FldSel({label,value,onChange,options}){
